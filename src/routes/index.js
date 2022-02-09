@@ -3,11 +3,13 @@ const express = require('express')
 const router = express.Router()
 
 //import controller
-const { getUsers, getUser } = require('../controllers/users')
+const { register, getUsers, login, deleteUser } = require('../controllers/user')
 
 //create router
-router.get('/users', getUsers);
-router.get('/getuser', getUser)
+router.post('/register', register)
+router.get('/users', getUsers)
+router.post('/login', login)
+router.delete('/user/:id', deleteUser)
 
 //export module
 module.exports = router
