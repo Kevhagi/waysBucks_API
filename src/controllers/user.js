@@ -1,24 +1,52 @@
 const { user } = require('../../models')
 
-exports.register = async (req,res) => {
-    try {
-        const addUser = await user.create(req.body)
+const { joi } = require('joi')
 
-        res.send({
+exports.register = async (req,res) => {
+
+    const schema = joi.object({
+        name : joi.string().min(3).required(),
+        email : joi.string().min(3).email().required(),
+        password : joi.string().min(6).required()
+    })
+
+    const { error } = schema.validate(req.body)
+    if(error){
+        return res.status(400).send({
+            error : {
+                message : error.details[0].message
+            }
+        })
+    }
+
+    try {
+        const checkUser = await user.findOne({
+            where : {
+                email : req.body.email
+            }
+        })
+        if(checkUser !== null){
+            return res.status(400).send({
+                status : 'Failed',
+                message : 'Email is already registered'
+            })
+        }
+
+        const addUser = await user.create(req.body)
+        res.status(201).send({
             status : 'Success',
             data : {
                 user : {
                     fullName : addUser.fullName,
-                    token : addUser.token
+                    token : 'kosong mint'
                 }
             }
         })
-        
     } catch (error) {
         console.log(error);
         res.send({
             status : 'Failed',
-            message : 'Server error'
+            message : 'Server Error'
         })
     }
 }
