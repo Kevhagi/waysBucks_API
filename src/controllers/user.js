@@ -1,13 +1,14 @@
 const { user } = require('../../models')
 
-const { joi } = require('joi')
+const Joi = require('joi')
+const jwt = require('jsonwebtoken')
 
 exports.register = async (req,res) => {
 
-    const schema = joi.object({
-        name : joi.string().min(3).required(),
-        email : joi.string().min(3).email().required(),
-        password : joi.string().min(6).required()
+    const schema = Joi.object({
+        fullName : Joi.string().min(3).required(),
+        email : Joi.string().min(3).email().required(),
+        password : Joi.string().min(6).required()
     })
 
     const { error } = schema.validate(req.body)
@@ -32,13 +33,21 @@ exports.register = async (req,res) => {
             })
         }
 
-        const addUser = await user.create(req.body)
-        res.status(201).send({
+        const addUser = await user.create({
+            fullName : req.body.fullName,
+            email : req.body.email,
+            password : req.body.password,
+            role : 'Customer',
+        })
+        const SECRET_KEY = "awikwok"
+        const token = jwt.sign({id : addUser.id}, SECRET_KEY)
+
+        res.status(200).send({
             status : 'Success',
             data : {
                 user : {
                     fullName : addUser.fullName,
-                    token : 'kosong mint'
+                    token
                 }
             }
         })
@@ -52,32 +61,58 @@ exports.register = async (req,res) => {
 }
 
 exports.login = async (req,res) => {
-    try {
-        const { email, password } = req.body
 
-        const getUser = await user.findAll({
-            where : {
-                email,
-                password
-            },
-            attributes : {
-                exclude : ['id', 'password', 'image',
-                            'createdAt', 'updatedAt']
+    const schema = Joi.object({
+        email : Joi.string().min(3).email().required(),
+        password : Joi.string().min(6).required()
+    })
+
+    const { error } = schema.validate(req.body)
+    if(error){
+        return res.status(400).send({
+            error : {
+                message : error.details[0].message
             }
         })
+    }
 
-        res.send({
+    try {
+        const checkUser = await user.findOne({
+            where : {
+                email : req.body.email
+            }
+        })
+        if(checkUser === null){
+            return res.status(400).send({
+                status : 'Failed',
+                message : 'Login failed email is not registered'
+            })
+        }
+        if(checkUser.password !== req.body.password){
+            return res.status(400).send({
+                status : 'Failed',
+                message : 'Login failed wrong user credentials'
+            })
+        }
+
+        const SECRET_KEY = "awikwok"
+        const token = jwt.sign({id : checkUser.id}, SECRET_KEY)
+
+        res.status(201).send({
             status : 'Success',
             data : {
-                user : getUser,
+                user : {
+                    fullName : checkUser.fullName,
+                    email : checkUser.email,
+                    token
+                }
             }
         })
-        
     } catch (error) {
         console.log(error);
         res.send({
             status : 'Failed',
-            message : 'Server error'
+            message : 'Server Error'
         })
     }
 }
