@@ -1,8 +1,8 @@
-const { products } = require('../../models')
+const { toppings } = require('../../models')
 
-exports.getProducts = async (req,res) => {
+exports.getToppings = async (req,res) => {
     try {
-        const search = await products.findAll({
+        const search = await toppings.findAll({
             attributes : {
                 exclude : ['createdAt', 'updatedAt']
             }
@@ -11,7 +11,7 @@ exports.getProducts = async (req,res) => {
         res.send({
             status : 'Success',
             data : {
-                products : search
+                toppings : search
             }
         })
     } catch (error) {
@@ -23,10 +23,10 @@ exports.getProducts = async (req,res) => {
     }
 }
 
-exports.productDetail = async (req,res) => {
+exports.toppingDetail = async (req,res) => {
     try {
         const { id } = req.params
-        const result = await products.findOne({
+        const result = await toppings.findOne({
             where : {
                 id
             },
@@ -38,7 +38,7 @@ exports.productDetail = async (req,res) => {
         res.status(200).send({
             status : 'Success',
             data : {
-                product : result
+                topping : result
             }
         })
     } catch (error) {
@@ -50,11 +50,11 @@ exports.productDetail = async (req,res) => {
     }
 }
 
-exports.addProduct = async (req,res) => {
+exports.addTopping = async (req,res) => {
     try {
-        const findDuplicates = await products.findOne({
+        const findDuplicates = await toppings.findOne({
             where : {
-                productName : req.body.productName
+                toppingName : req.body.toppingName
             }
         })
         if(findDuplicates !== null){
@@ -64,19 +64,19 @@ exports.addProduct = async (req,res) => {
             })
         }
 
-        const product = await products.create({
-            productName : req.body.productName,
-            productPrice : req.body.productPrice,
-            productImage : req.body.productImage
+        const topping = await toppings.create({
+            toppingName : req.body.toppingName,
+            toppingPrice : req.body.toppingPrice,
+            toppingImage : req.body.toppingImage
         })
         res.status(200).send({
             status : 'Success',
             data : {
-                product : {
-                    id : product.id,
-                    productName : product.productName,
-                    productPrice : product.productPrice,
-                    productImage : product.productImage
+                topping : {
+                    id : topping.id,
+                    toppingName : topping.toppingName,
+                    toppingPrice : topping.toppingPrice,
+                    toppingImage : topping.toppingImage
                 }
             }
         })
@@ -90,16 +90,16 @@ exports.addProduct = async (req,res) => {
     }
 }
 
-exports.editProduct = async (req,res) => {
+exports.editTopping = async (req,res) => {
     try {
         const { id } = req.params
-        await products.update(req.body, {
+        await toppings.update(req.body, {
             where : {
                 id
             },
         })
 
-        const result = await products.findOne({
+        const result = await toppings.findOne({
             where : {
                 id
             }
@@ -110,9 +110,9 @@ exports.editProduct = async (req,res) => {
             data : {
                 product : {
                     id,
-                    productName : result.productName,
-                    productPrice : result.productPrice,
-                    productImage : result.productImage
+                    toppingName : result.toppingName,
+                    toppingPrice : result.toppingPrice,
+                    toppingImage : result.toppingImage
                 }
             }
         })
@@ -125,7 +125,7 @@ exports.editProduct = async (req,res) => {
     }
 }
 
-exports.deleteProduct = async (req,res) => {
+exports.deleteTopping = async (req,res) => {
     try {
         const {id} = req.params
 
@@ -141,7 +141,7 @@ exports.deleteProduct = async (req,res) => {
             })
         }
 
-        await products.destroy({
+        await toppings.destroy({
             where : {
                 id
             }
