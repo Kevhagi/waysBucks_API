@@ -11,6 +11,26 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      products_order.belongsTo(models.transactions, {
+        as : "transactions",
+        foreignKey : {
+          name : "transactionID"
+        }
+      })
+
+      products_order.hasOne(models.products, {
+        as : "products",
+        foreignKey : {
+          name : "productID"
+        }
+      })
+
+      products_order.hasMany(models.toppings_order, {
+        as : "toppings_order",
+        foreignKey : {
+          name : "productOrderID"
+        }
+      })
     }
   }
   products_order.init({
