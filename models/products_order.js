@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         }
       })
 
-      products_order.hasOne(models.products, {
+      products_order.belongsTo(models.products, {
         as : "products",
         foreignKey : {
           name : "productID"
@@ -35,7 +35,8 @@ module.exports = (sequelize, DataTypes) => {
   }
   products_order.init({
     transactionID: DataTypes.INTEGER,
-    productID: DataTypes.INTEGER
+    productID: DataTypes.INTEGER,
+    qty: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'products_order',

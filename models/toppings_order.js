@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         }
       })
 
-      toppings_order.hasOne(models.toppings, {
+      toppings_order.belongsTo(models.toppings, {
         as : "toppings",
         foreignKey : {
           name : "toppingID"
