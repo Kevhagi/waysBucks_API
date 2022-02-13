@@ -91,17 +91,69 @@ exports.getTransactions = async (req,res) => {
 
 exports.getTransaction = async (req,res) => {
     try {
-        
         const { id } = req.params
 
-        const result = await transactions.findOne({
+        const oneTransaction = await transactions.findOne({
             where : {
                 id
-            }
+            },
+            include : [
+                {
+                    model : user,
+                    required : true,
+                    as : 'customer'
+                },
+                {
+                    model : products_order,
+                    as : 'products_order',
+                    include : [
+                        {
+                            model : products,
+                            as : 'products'
+                        },
+                        {
+                            model : toppings_order,
+                            as : 'toppings_order',
+                            include : [
+                                {
+                                   model : toppings,
+                                   as : 'toppings'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         })
 
         res.status(200).send({
-            result
+            status : 'Success',
+            data : {
+                transaction : {
+                    id,
+                    userOrder : {
+                        id : oneTransaction.customer.id,
+                        fullName : oneTransaction.customer.fullName,
+                        email : oneTransaction.customer.email
+                    },
+                    status : 'Success',
+                    order : oneTransaction.products_order.map((gura, index) => {
+                        return {
+                            id : gura.id,
+                            title : gura.products.productName,
+                            price : gura.products.productPrice,
+                            image : gura.products.productImage,
+                            qty : gura.qty,
+                            toppings : gura.toppings_order.map((rushia, index) => {
+                                return {
+                                    id : rushia.id,
+                                    name : rushia.toppings.toppingName
+                                }
+                            })
+                        }
+                    })
+                }
+            }
         })
             
         
