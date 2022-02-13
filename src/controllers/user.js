@@ -2,6 +2,7 @@ const { user } = require('../../models')
 
 const Joi = require('joi')
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 
 exports.register = async (req,res) => {
 
@@ -33,10 +34,13 @@ exports.register = async (req,res) => {
             })
         }
 
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(req.body.password, salt)
+
         const addUser = await user.create({
             fullName : req.body.fullName,
             email : req.body.email,
-            password : req.body.password,
+            password : hashedPassword,
             role : 'Customer',
         })
 
@@ -88,10 +92,12 @@ exports.login = async (req,res) => {
                 message : 'Login failed email is not registered'
             })
         }
-        if(checkUser.password !== req.body.password){
+
+        const isValid = await bcrypt.compare(req.body.password, checkUser.password)
+        if(!isValid) {
             return res.status(400).send({
                 status : 'Failed',
-                message : 'Login failed wrong user credentials'
+                message : 'Credentials Error'
             })
         }
 
