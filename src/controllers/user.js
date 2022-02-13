@@ -39,8 +39,8 @@ exports.register = async (req,res) => {
             password : req.body.password,
             role : 'Customer',
         })
-        const SECRET_KEY = "awikwok"
-        const token = jwt.sign({id : addUser.id}, SECRET_KEY)
+
+        const token = jwt.sign({id : addUser.id}, process.env.TOKEN_KEY)
 
         res.status(200).send({
             status : 'Success',
@@ -95,8 +95,7 @@ exports.login = async (req,res) => {
             })
         }
 
-        const SECRET_KEY = "awikwok"
-        const token = jwt.sign({id : checkUser.id}, SECRET_KEY)
+        const token = jwt.sign({id : checkUser.id}, process.env.TOKEN_KEY)
 
         res.status(201).send({
             status : 'Success',
