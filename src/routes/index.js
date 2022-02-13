@@ -34,7 +34,7 @@ router.delete('/topping/:id', auth, deleteTopping)
 
 //transaction
 router.get('/transactions', getTransactions)
-router.post('/transaction', addTransactions)
+router.post('/transaction', auth, addTransactions)
 
 //export module
 module.exports = router
