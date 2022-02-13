@@ -34,50 +34,36 @@ exports.getTransactions = async (req,res) => {
             ]
         })
 
-        
-
-        var asd = allTransactions.map((towa, index) => {
-            return {
-                id : towa.id,
-                userOrder : {
-                    id : towa.customerID
-                },
-                
-                /*
-                userOrder : {
-                    id : towa.customerID,
-                    fullName : towa.user.fullName,
-                    email : towa.user.email
-                }
-                userOrder : towa.user.map((watame, index) => {
+        res.status(200).send({
+            status : 'Success',
+            data : {
+                transactions : allTransactions.map((scarlet, index) => {
                     return {
-                        id : watame.id,
-                        fullName : watame.fullName,
-                        email : watame.email
-                    }
-                })*/
-
-                order : towa.products_order.map((gura, index) => {
-                    return {
-                        id : gura.id,
-                        title : gura.products.productName,
-                        price : gura.products.productPrice,
-                        image : gura.products.productImage,
-                        qty : gura.qty,
-                        toppings : gura.toppings_order.map((rushia, index) => {
+                        id : scarlet.id,
+                        userOrder : {
+                            id : scarlet.customer.id,
+                            fullName : scarlet.customer.fullName,
+                            email : scarlet.customer.email
+                        },
+                        status : scarlet.statusTransaction,
+                        order : scarlet.products_order.map((teio, index) => {
                             return {
-                                id : rushia.toppingID,
-                                name : rushia.toppings.toppingName
+                                id : teio.id,
+                                title : teio.products.productName,
+                                price : teio.products.productPrice,
+                                image : teio.products.productImage,
+                                qty : teio.qty,
+                                toppings : teio.toppings_order.map((karin, index) => {
+                                    return {
+                                        id : karin.toppingID,
+                                        name : karin.toppings.toppingName
+                                    }
+                                })
                             }
                         })
                     }
                 })
             }
-        })
-
-        res.status(200).send({
-            status : 'Success',
-            transactions : asd
         })
         
     } catch (error) {
@@ -136,7 +122,7 @@ exports.getTransaction = async (req,res) => {
                         fullName : oneTransaction.customer.fullName,
                         email : oneTransaction.customer.email
                     },
-                    status : 'Success',
+                    status : oneTransaction.statusTransaction,
                     order : oneTransaction.products_order.map((gura, index) => {
                         return {
                             id : gura.id,
@@ -146,7 +132,7 @@ exports.getTransaction = async (req,res) => {
                             qty : gura.qty,
                             toppings : gura.toppings_order.map((rushia, index) => {
                                 return {
-                                    id : rushia.id,
+                                    id : rushia.toppingID,
                                     name : rushia.toppings.toppingName
                                 }
                             })
