@@ -252,3 +252,194 @@ exports.addTransactions = async (req,res) => {
         })
     }
 }
+
+exports.editTransaction = async (req,res) => {
+    try {
+        const { id } = req.params
+        await transactions.update(
+            { statusTransaction : req.body.status }, {
+            where : {
+                id
+            }
+        })
+
+        const oneTransaction = await transactions.findOne({
+            where : {
+                id
+            },
+            include : [
+                {
+                    model : user,
+                    required : true,
+                    as : 'customer'
+                },
+                {
+                    model : products_order,
+                    as : 'products_order',
+                    include : [
+                        {
+                            model : products,
+                            as : 'products'
+                        },
+                        {
+                            model : toppings_order,
+                            as : 'toppings_order',
+                            include : [
+                                {
+                                   model : toppings,
+                                   as : 'toppings'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        })
+
+        res.status(200).send({
+            status : 'Success',
+            data : {
+                transaction : {
+                    id,
+                    userOrder : {
+                        id : oneTransaction.customer.id,
+                        fullName : oneTransaction.customer.fullName,
+                        email : oneTransaction.customer.email
+                    },
+                    status : oneTransaction.statusTransaction,
+                    order : oneTransaction.products_order.map((gura, index) => {
+                        return {
+                            id : gura.id,
+                            title : gura.products.productName,
+                            price : gura.products.productPrice,
+                            image : gura.products.productImage,
+                            qty : gura.qty,
+                            toppings : gura.toppings_order.map((rushia, index) => {
+                                return {
+                                    id : rushia.toppingID,
+                                    name : rushia.toppings.toppingName
+                                }
+                            })
+                        }
+                    })
+                }
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(400).send({
+            status : 'Failed',
+            message : 'Server Error'
+        })
+    }
+}
+
+exports.deleteTransaction = async (req,res) => {
+    try {
+        const {id} = req.params
+
+        const findIndex = await transactions.findOne({
+            where : {
+                id
+            }
+        })
+        if(findIndex === null){
+            return res.status(400).send({
+                status : 'Failed',
+                message : 'ID not found'
+            })
+        }
+
+        await transactions.destroy({
+            where : {
+                id
+            }
+        })
+
+        res.status(200).send({
+            status : 'Success',
+            data : {
+                id
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(400).send({
+            status : 'Failed',
+            message : 'Server Error'
+        })
+    }
+}
+
+exports.myTransactions = async (req,res) => {
+    try {
+        //user stuffs
+        const authHeader = req.header("Authorization")
+        const token = authHeader && authHeader.split(' ')[1]
+        var decoded = jwt_decode(token)
+        const decodedID = decoded.id
+
+        var allTransactions = await transactions.findAll({
+            where : {
+                customerID : decodedID
+            },
+            include : [
+                {
+                    model : user,
+                    required : true,
+                    as : 'customer'
+                },
+                {
+                    model : products_order,
+                    as : 'products_order',
+                    include : [
+                        {
+                            model : products,
+                            as : 'products'
+                        },
+                        {
+                            model : toppings_order,
+                            as : 'toppings_order',
+                            include : [
+                                {
+                                   model : toppings,
+                                   as : 'toppings'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        })
+
+        res.status(200).send({
+            status : "Success",
+            data : {
+                transactions : allTransactions.map((scarlet, index) => {
+                    return {
+                        id : scarlet.id,
+                        status : scarlet.statusTransaction,
+                        order : scarlet.products_order.map((teio, index) => {
+                            return {
+                                id : teio.id,
+                                title : teio.products.productName,
+                                price : teio.products.productPrice,
+                                image : teio.products.productImage,
+                                qty : teio.qty,
+                                toppings : teio.toppings_order.map((karin, index) => {
+                                    return {
+                                        id : karin.toppingID,
+                                        name : karin.toppings.toppingName
+                                    }
+                                })
+                            }
+                        })
+                    }
+                })
+            }
+        })
+    } catch (error) {
+        console.log(error);
+
+    }
+}
