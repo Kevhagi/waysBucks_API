@@ -3,23 +3,107 @@ const jwt_decode = require('jwt-decode')
 
 exports.getTransactions = async (req,res) => {
     try {
-        const data = await transactions.findAll({
+        
+        var allTransactions = await transactions.findAll({
             include : [
                 {
                     model : user,
+                    required : true,
                     as : 'customer'
                 },
                 {
                     model : products_order,
-                    as : 'products_order'
+                    as : 'products_order',
+                    include : [
+                        {
+                            model : products,
+                            as : 'products'
+                        },
+                        {
+                            model : toppings_order,
+                            as : 'toppings_order',
+                            include : [
+                                {
+                                   model : toppings,
+                                   as : 'toppings'
+                                }
+                            ]
+                        }
+                    ]
                 }
             ]
         })
 
+        
+
+        var asd = allTransactions.map((towa, index) => {
+            return {
+                id : towa.id,
+                userOrder : {
+                    id : towa.customerID
+                },
+                
+                /*
+                userOrder : {
+                    id : towa.customerID,
+                    fullName : towa.user.fullName,
+                    email : towa.user.email
+                }
+                userOrder : towa.user.map((watame, index) => {
+                    return {
+                        id : watame.id,
+                        fullName : watame.fullName,
+                        email : watame.email
+                    }
+                })*/
+
+                order : towa.products_order.map((gura, index) => {
+                    return {
+                        id : gura.id,
+                        title : gura.products.productName,
+                        price : gura.products.productPrice,
+                        image : gura.products.productImage,
+                        qty : gura.qty,
+                        toppings : gura.toppings_order.map((rushia, index) => {
+                            return {
+                                id : rushia.toppingID,
+                                name : rushia.toppings.toppingName
+                            }
+                        })
+                    }
+                })
+            }
+        })
+
         res.status(200).send({
             status : 'Success',
-            data
+            transactions : asd
         })
+        
+    } catch (error) {
+        console.log(error);
+        res.status(400).send({
+            status : 'Failed',
+            message : 'Server Error'
+        })
+    }
+}
+
+exports.getTransaction = async (req,res) => {
+    try {
+        
+        const { id } = req.params
+
+        const result = await transactions.findOne({
+            where : {
+                id
+            }
+        })
+
+        res.status(200).send({
+            result
+        })
+            
         
     } catch (error) {
         console.log(error);
@@ -93,7 +177,6 @@ exports.addTransactions = async (req,res) => {
                 image : gura.products.productImage,
                 qty : gura.qty,
                 toppings : gura.toppings_order.map((rushia, index) => {
-                    console.log(rushia);
                     return {
                         id : rushia.toppingID,
                         name : rushia.toppings.toppingName
