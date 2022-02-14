@@ -1,4 +1,6 @@
 const { products } = require('../../models')
+const path = require('path')
+const fs = require('fs')
 
 exports.getProducts = async (req,res) => {
     try {
@@ -150,6 +152,12 @@ exports.deleteProduct = async (req,res) => {
                 message : 'ID not found'
             })
         }
+
+        const removeImage = (filePath) => {
+            filePath = path.join(__dirname, '../../uploads/', filePath)
+            fs.unlink(filePath, err => console.log(err))
+        }
+        removeImage(findIndex.productImage)
 
         await products.destroy({
             where : {

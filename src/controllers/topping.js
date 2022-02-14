@@ -1,4 +1,6 @@
 const { toppings } = require('../../models')
+const path = require('path')
+const fs = require('fs')
 
 exports.getToppings = async (req,res) => {
     try {
@@ -150,6 +152,12 @@ exports.deleteTopping = async (req,res) => {
                 message : 'ID not found'
             })
         }
+
+        const removeImage = (filePath) => {
+            filePath = path.join(__dirname, '../../uploads/', filePath)
+            fs.unlink(filePath, err => console.log(err))
+        }
+        removeImage(findIndex.productImage)
 
         await toppings.destroy({
             where : {
