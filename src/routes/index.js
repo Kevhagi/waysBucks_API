@@ -11,6 +11,7 @@ const { getTransactions, addTransactions, getTransaction, editTransaction, delet
 
 //middlewares
 const { auth } = require('../middlewares/auth')
+const { uploadFile } = require('../middlewares/uploadFile')
 
 //user
 router.post('/register', register)
@@ -21,14 +22,14 @@ router.delete('/user/:id', deleteUser)
 //product
 router.get('/products', getProducts)
 router.get('/product/:id', productDetail)
-router.post('/product', auth, addProduct)
+router.post('/product', auth, uploadFile("productImage"), addProduct)
 router.patch('/product/:id', auth, editProduct)
 router.delete('/product/:id', auth, deleteProduct)
 
 //topping
 router.get('/toppings', getToppings)
 router.get('/topping/:id', toppingDetail)
-router.post('/topping', auth, addTopping)
+router.post('/topping', auth, uploadFile("toppingImage"), addTopping)
 router.patch('/topping/:id', auth, editTopping)
 router.delete('/topping/:id', auth, deleteTopping)
 

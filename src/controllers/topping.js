@@ -52,11 +52,14 @@ exports.toppingDetail = async (req,res) => {
 
 exports.addTopping = async (req,res) => {
     try {
+        const data = req.body
+
         const findDuplicates = await toppings.findOne({
             where : {
-                toppingName : req.body.toppingName
+                toppingName : data.toppingName
             }
         })
+
         if(findDuplicates !== null){
             return res.status(400).send({
                 status : 'Failed',
@@ -64,19 +67,26 @@ exports.addTopping = async (req,res) => {
             })
         }
 
-        const topping = await toppings.create({
-            toppingName : req.body.toppingName,
-            toppingPrice : req.body.toppingPrice,
-            toppingImage : req.body.toppingImage
+        let newTopping = await toppings.create({
+            ...data,
+            toppingImage : req.file.filename
         })
+
+        newTopping = JSON.parse(JSON.stringify(newTopping))
+
+        newTopping = {
+            ...newTopping,
+            toppingImage : process.env.FILE_PATH + newTopping.toppingImage
+        }
+
         res.status(200).send({
             status : 'Success',
             data : {
                 topping : {
-                    id : topping.id,
-                    toppingName : topping.toppingName,
-                    toppingPrice : topping.toppingPrice,
-                    toppingImage : topping.toppingImage
+                    id : newTopping.id,
+                    title : newTopping.toppingName,
+                    price : newTopping.toppingPrice,
+                    image : newTopping.toppingImage
                 }
             }
         })

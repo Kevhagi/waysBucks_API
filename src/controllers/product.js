@@ -52,11 +52,14 @@ exports.productDetail = async (req,res) => {
 
 exports.addProduct = async (req,res) => {
     try {
+        const data = req.body
+
         const findDuplicates = await products.findOne({
             where : {
-                productName : req.body.productName
+                productName : data.productName
             }
         })
+
         if(findDuplicates !== null){
             return res.status(400).send({
                 status : 'Failed',
@@ -64,19 +67,26 @@ exports.addProduct = async (req,res) => {
             })
         }
 
-        const product = await products.create({
-            productName : req.body.productName,
-            productPrice : req.body.productPrice,
-            productImage : req.body.productImage
+        let newProduct = await products.create({
+            ...data,
+            productImage : req.file.filename
         })
+
+        newProduct = JSON.parse(JSON.stringify(newProduct))
+
+        newProduct = {
+            ...newProduct,
+            productImage : process.env.FILE_PATH + newProduct.productImage
+        }
+
         res.status(200).send({
             status : 'Success',
             data : {
                 product : {
-                    id : product.id,
-                    productName : product.productName,
-                    productPrice : product.productPrice,
-                    productImage : product.productImage
+                    id : newProduct.id,
+                    title : newProduct.productName,
+                    price : newProduct.productPrice,
+                    image : newProduct.productImage
                 }
             }
         })
@@ -129,7 +139,7 @@ exports.deleteProduct = async (req,res) => {
     try {
         const {id} = req.params
 
-        const findIndex = await toppings.findOne({
+        const findIndex = await products.findOne({
             where : {
                 id
             }

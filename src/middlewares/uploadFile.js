@@ -1,5 +1,5 @@
 // import package here
-const multer = require("multer")
+const multer = require('multer')
 
 
 exports.uploadFile = (imageFile) => {
