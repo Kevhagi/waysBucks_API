@@ -57,7 +57,7 @@ exports.register = async (req,res) => {
         })
     } catch (error) {
         console.log(error);
-        res.send({
+        res.status(400).send({
             status : 'Failed',
             message : 'Server Error'
         })
@@ -101,9 +101,16 @@ exports.login = async (req,res) => {
             })
         }
 
-        const token = jwt.sign({id : checkUser.id}, process.env.TOKEN_KEY)
+        const token = jwt.sign(
+            {
+                id : checkUser.id,
+                email : checkUser.email,
+                fullName : checkUser.fullName,
+                image : checkUser.image,
+                role : checkUser.role
+            }, process.env.TOKEN_KEY)
 
-        res.status(201).send({
+        res.status(200).send({
             status : 'Success',
             data : {
                 user : {
