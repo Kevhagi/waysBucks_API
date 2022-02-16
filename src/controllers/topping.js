@@ -65,7 +65,7 @@ exports.addTopping = async (req,res) => {
         if(findDuplicates !== null){
             return res.status(400).send({
                 status : 'Failed',
-                message : 'Nama produk tidak boleh sama!'
+                message : 'Nama topping tidak boleh sama!'
             })
         }
 
