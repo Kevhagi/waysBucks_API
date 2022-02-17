@@ -4,7 +4,7 @@ const express = require('express')
 const router = express.Router()
 
 //import controller
-const { register, getUsers, login, deleteUser } = require('../controllers/user')
+const { register, getUsers, login, deleteUser, checkAuth } = require('../controllers/user')
 const { getProducts, productDetail, addProduct, editProduct, deleteProduct } = require('../controllers/product')
 const { getToppings, toppingDetail, addTopping, editTopping, deleteTopping } = require('../controllers/topping')
 const { getTransactions, addTransactions, getTransaction, editTransaction, deleteTransaction, myTransactions } = require('../controllers/transaction')
@@ -17,7 +17,8 @@ const { uploadFile } = require('../middlewares/uploadFile')
 router.post('/register', register)
 router.post('/login', login)
 router.get('/users', getUsers)
-router.delete('/user/:id', deleteUser)
+router.get('/check-auth', auth, checkAuth)
+router.delete('/user/:id', auth, deleteUser)
 
 //product
 router.get('/products', getProducts)
