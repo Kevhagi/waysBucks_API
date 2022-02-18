@@ -1,6 +1,7 @@
 const { toppings } = require('../../models')
 const path = require('path')
 const fs = require('fs')
+const Joi = require('joi')
 
 exports.getToppings = async (req,res) => {
     try {
@@ -54,6 +55,20 @@ exports.toppingDetail = async (req,res) => {
 
 exports.addTopping = async (req,res) => {
     try {
+        const schema = Joi.object({
+            toppingName : Joi.string().min(3).required(),
+            toppingPrice : Joi.number().integer().min(500).required()
+        })
+
+        const { error } = schema.validate(req.body)
+        if(error){
+            return res.status(400).send({
+                error : {
+                    message : error.details[0].message
+                }
+            })
+        }
+
         const data = req.body
 
         const findDuplicates = await toppings.findOne({
@@ -65,7 +80,7 @@ exports.addTopping = async (req,res) => {
         if(findDuplicates !== null){
             return res.status(400).send({
                 status : 'Failed',
-                message : 'Nama topping tidak boleh sama!'
+                message : 'Topping name is already exist!'
             })
         }
 

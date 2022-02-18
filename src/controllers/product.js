@@ -1,6 +1,7 @@
 const { products } = require('../../models')
 const path = require('path')
 const fs = require('fs')
+const Joi = require('joi')
 
 exports.getProducts = async (req,res) => {
     try {
@@ -54,6 +55,20 @@ exports.productDetail = async (req,res) => {
 
 exports.addProduct = async (req,res) => {
     try {
+        const schema = Joi.object({
+            productName : Joi.string().min(3).required(),
+            productPrice : Joi.number().integer().min(500).required()
+        })
+
+        const { error } = schema.validate(req.body)
+        if(error){
+            return res.status(400).send({
+                error : {
+                    message : error.details[0].message
+                }
+            })
+        }
+
         const data = req.body
 
         const findDuplicates = await products.findOne({
@@ -65,7 +80,7 @@ exports.addProduct = async (req,res) => {
         if(findDuplicates !== null){
             return res.status(400).send({
                 status : 'Failed',
-                message : 'Nama produk tidak boleh sama!'
+                message : 'Product name is already exist!'
             })
         }
 
