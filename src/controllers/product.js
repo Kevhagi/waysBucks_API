@@ -5,11 +5,20 @@ const Joi = require('joi')
 
 exports.getProducts = async (req,res) => {
     try {
-        const search = await products.findAll({
+        let search = await products.findAll({
             attributes : {
                 exclude : ['createdAt', 'updatedAt']
             }
         })
+
+        search = JSON.parse(JSON.stringify(search));
+
+        search = search.map((item) => {
+            return { 
+                ...item,
+                productImage: process.env.FILE_PATH + item.productImage
+            };
+        });
 
         res.send({
             status : 'Success',
