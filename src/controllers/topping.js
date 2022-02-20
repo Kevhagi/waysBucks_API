@@ -5,12 +5,21 @@ const Joi = require('joi')
 
 exports.getToppings = async (req,res) => {
     try {
-        const search = await toppings.findAll({
+        let search = await toppings.findAll({
             attributes : {
                 exclude : ['createdAt', 'updatedAt']
             }
         })
 
+        search = JSON.parse(JSON.stringify(search));
+
+        search = search.map((item) => {
+        return { 
+            ...item,
+            toppingImage: process.env.FILE_PATH + item.toppingImage 
+        };
+        });
+        
         res.send({
             status : 'Success',
             data : {
