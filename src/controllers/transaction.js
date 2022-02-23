@@ -277,8 +277,91 @@ exports.addCart = async (req,res) => {
 
         res.status(200).send({
             status : 'Success',
-            message : 'Order added to cart'
+            message : 'Order added to cart!'
         })
+        
+    } catch (error) {
+        console.log(error);
+        res.status(400).send({
+            status : 'Failed',
+            message : 'Server Error'
+        })
+    }
+}
+
+exports.getCart = async (req,res) => {
+    try {
+
+        //user stuffs
+        const authHeader = req.header("Authorization")
+        const token = authHeader && authHeader.split(' ')[1]
+        var decoded = jwt_decode(token)
+        const decodedID = decoded.id
+        const getUserDetails = await user.findOne({
+            where : {
+                id : decodedID
+            }
+        })
+
+        var allCart = await transactions.findAll({
+            where : {
+                customerID : getUserDetails.id,
+                statusTransaction : 'On Cart'
+            },
+            include : [
+                {
+                    model : user,
+                    required : true,
+                    as : 'customer'
+                },
+                {
+                    model : products_order,
+                    as : 'products_order',
+                    include : [
+                        {
+                            model : products,
+                            as : 'products'
+                        },
+                        {
+                            model : toppings_order,
+                            as : 'toppings_order',
+                            include : [
+                                {
+                                   model : toppings,
+                                   as : 'toppings'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        })
+
+        res.status(200).send({
+            status : 'Success',
+            data : {
+                onCart : allCart.map((scarlet, index) => {
+                    return {
+                        id : scarlet.id,
+                        order : scarlet.products_order.map((vodka) => {
+                            return {
+                                productName : vodka.products.productName,
+                                productPrice : vodka.products.productPrice,
+                                productImage : vodka.products.productImage,
+                                qty : vodka.qty,
+                                topping : vodka.toppings_order.map((daia, index) => {
+                                    return {
+                                        toppingName : daia.toppings.toppingName,
+                                        toppingPrice : daia.toppings.toppingPrice
+                                    }
+                                })
+                            }
+                        })
+                    }
+                })
+            }
+        })
+
         
     } catch (error) {
         console.log(error);
