@@ -7,7 +7,7 @@ const router = express.Router()
 const { register, getUsers, login, deleteUser, checkAuth } = require('../controllers/user')
 const { getProducts, productDetail, addProduct, editProduct, deleteProduct } = require('../controllers/product')
 const { getToppings, toppingDetail, addTopping, editTopping, deleteTopping } = require('../controllers/topping')
-const { getTransactions, addTransactions, getTransaction, editTransaction, deleteTransaction, myTransactions } = require('../controllers/transaction')
+const { getTransactions, addTransactions, getTransaction, editTransaction, deleteTransaction, myTransactions, addCart } = require('../controllers/transaction')
 
 //middlewares
 const { auth } = require('../middlewares/auth')
@@ -37,6 +37,7 @@ router.delete('/topping/:id', auth, deleteTopping)
 //transaction
 router.get('/transactions', getTransactions)
 router.get('/transaction/:id', getTransaction)
+router.post('/addtocart', auth, addCart)
 router.post('/transaction', auth, addTransactions)
 router.patch('/transaction/:id', auth, editTransaction)
 router.delete('/transaction/:id', auth, deleteTransaction)

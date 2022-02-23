@@ -224,12 +224,12 @@ exports.addTransactions = async (req,res) => {
         })
 
         var inputTransaction = await transactions.update(
-            { statusTransaction : 'On The Way' },
+            { statusTransaction : 'Waiting Approve' },
             { where : { id : addTransaction.id }}
         )
 
         res.status(200).send({
-            status : 'On The Way',
+            status : 'Waiting Approve',
             data : {
                 transaction : {
                     id : addTransaction.id,
@@ -244,6 +244,42 @@ exports.addTransactions = async (req,res) => {
             }
         })
 
+    } catch (error) {
+        console.log(error);
+        res.status(400).send({
+            status : 'Failed',
+            message : 'Server Error'
+        })
+    }
+}
+
+exports.addCart = async (req,res) => {
+    try {
+        const data = req.body
+
+        var addToCart = await transactions.create({
+            customerID : data.userID,
+            statusTransaction : 'On Cart'
+        })
+
+        var addProductToCart = await products_order.create({
+            transactionID : addToCart.id,
+            productID : data.id,
+            qty : 1
+        })
+
+        for (let i = 0; i < data.toppings.length; i++) {
+            await toppings_order.create({
+                productOrderID : addProductToCart.id,
+                toppingID : data.toppings[i].id
+            })
+        }
+
+        res.status(200).send({
+            status : 'Success',
+            message : 'Order added to cart'
+        })
+        
     } catch (error) {
         console.log(error);
         res.status(400).send({
