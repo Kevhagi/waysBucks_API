@@ -310,11 +310,6 @@ exports.getCart = async (req,res) => {
             },
             include : [
                 {
-                    model : user,
-                    required : true,
-                    as : 'customer'
-                },
-                {
                     model : products_order,
                     as : 'products_order',
                     include : [
@@ -342,17 +337,17 @@ exports.getCart = async (req,res) => {
             data : {
                 onCart : allCart.map((scarlet, index) => {
                     return {
-                        id : scarlet.id,
+                        transactionID : scarlet.id,
+                        customerID : getUserDetails.id,
                         order : scarlet.products_order.map((vodka) => {
                             return {
                                 productName : vodka.products.productName,
                                 productPrice : vodka.products.productPrice,
                                 productImage : vodka.products.productImage,
-                                qty : vodka.qty,
-                                topping : vodka.toppings_order.map((daia, index) => {
+                                topping : vodka.toppings_order.map((teio, index) => {
                                     return {
-                                        toppingName : daia.toppings.toppingName,
-                                        toppingPrice : daia.toppings.toppingPrice
+                                        toppingName : teio.toppings.toppingName,
+                                        toppingPrice : teio.toppings.toppingPrice
                                     }
                                 })
                             }
