@@ -20,6 +20,24 @@ module.exports = {
       statusTransaction: {
         type: Sequelize.STRING
       },
+      nameOrder : {
+        type: Sequelize.STRING
+      },
+      emailOrder : {
+        type: Sequelize.STRING
+      },
+      phoneOrder : {
+        type: Sequelize.STRING
+      },
+      postCodeOrder : {
+        type: Sequelize.INTEGER
+      },
+      addressOrder : {
+        type: Sequelize.TEXT
+      },
+      transactionImage : {
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

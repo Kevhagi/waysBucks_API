@@ -168,7 +168,12 @@ exports.addTransactions = async (req,res) => {
         })
 
         var addTransaction = await transactions.create({
-            customerID : decodedID
+            customerID : decodedID,
+            nameOrder : data.nameOrder,
+            emailOrder : data.emailOrder,
+            phoneOrder : data.phoneOrder,
+            postCodeOrder : data.postCodeOrder,
+            addressOrder : data.addressOrder
         })
 
         for (let i = 0; i < data.products_order.length; i++) {
@@ -207,7 +212,6 @@ exports.addTransactions = async (req,res) => {
             ]
         })
         var order = getProductOrder.map((gura, index) => {
-            
             return {
                 id : gura.id,
                 title : gura.products.productName,
@@ -224,9 +228,19 @@ exports.addTransactions = async (req,res) => {
         })
 
         var inputTransaction = await transactions.update(
-            { statusTransaction : 'Waiting Approve' },
+            { 
+                statusTransaction : 'Waiting Approve'
+            },
             { where : { id : addTransaction.id }}
         )
+
+        /*
+        addTransaction.set({
+            
+        })
+
+        await addTransaction.save()
+        */
 
         res.status(200).send({
             status : 'Waiting Approve',
