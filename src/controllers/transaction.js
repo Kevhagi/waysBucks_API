@@ -1,5 +1,6 @@
 const { user, transactions, products_order, toppings_order, products, toppings } = require('../../models')
 const jwt_decode = require('jwt-decode')
+const Joi = require('joi')
 
 exports.getTransactions = async (req,res) => {
     try {
@@ -154,6 +155,24 @@ exports.getTransaction = async (req,res) => {
 
 exports.addTransactions = async (req,res) => {
     try {
+        const schema = Joi.object({
+            nameOrder: Joi.string().min(2).required,
+            emailOrder: Joi.string().min(3).email().required(),
+            phoneOrder: Joi.number().integer().min(5).required(),
+            postCodeOrder : Joi.number().integer().min(5).max(6).required(),
+            addressOrder : Joi.required()
+        })
+
+        const { error } = schema.validate(req.body)
+        if(error){
+            return res.status(400).send({
+                error : {
+                    message : error.details[0].message
+                }
+            })
+        }
+
+
         const data = req.body
 
         //user stuffs
@@ -307,7 +326,6 @@ exports.addCart = async (req,res) => {
 
 exports.getCart = async (req,res) => {
     try {
-
         //user stuffs
         const authHeader = req.header("Authorization")
         const token = authHeader && authHeader.split(' ')[1]
@@ -319,7 +337,7 @@ exports.getCart = async (req,res) => {
             }
         })
 
-        var allCart = await transactions.findAll({
+        let allCart = await transactions.findAll({
             where : {
                 customerID : getUserDetails.id,
                 statusTransaction : 'On Cart'
@@ -348,30 +366,34 @@ exports.getCart = async (req,res) => {
             ]
         })
 
-        res.status(200).send({
-            status : 'Success',
-            data : {
-                onCart : allCart.map((scarlet, index) => {
+        allCart = JSON.parse(JSON.stringify(allCart))
+
+        var onCart = allCart.map((scarlet, index) => {
+            return {
+                transactionID : scarlet.id,
+                customerID : getUserDetails.id,
+                order : scarlet.products_order.map((vodka) => {
                     return {
-                        transactionID : scarlet.id,
-                        customerID : getUserDetails.id,
-                        order : scarlet.products_order.map((vodka) => {
+                        productID : vodka.id,
+                        productName : vodka.products.productName,
+                        productPrice : vodka.products.productPrice,
+                        productImage : process.env.FILE_PATH + vodka.products.productImage,
+                        topping : vodka.toppings_order.map((teio, index) => {
                             return {
-                                productID : vodka.id,
-                                productName : vodka.products.productName,
-                                productPrice : vodka.products.productPrice,
-                                productImage : vodka.products.productImage,
-                                topping : vodka.toppings_order.map((teio, index) => {
-                                    return {
-                                        toppingID : teio.id,
-                                        toppingName : teio.toppings.toppingName,
-                                        toppingPrice : teio.toppings.toppingPrice
-                                    }
-                                })
+                                toppingID : teio.id,
+                                toppingName : teio.toppings.toppingName,
+                                toppingPrice : teio.toppings.toppingPrice
                             }
                         })
                     }
                 })
+            }
+        })
+
+        res.status(200).send({
+            status : 'Success',
+            data : {
+                onCart
             }
         })
 
@@ -440,8 +462,6 @@ exports.getCartOther = async (req,res) => {
                 })
             }
         })
-
-        var c = order[0].order2[0].topping
 
         var a = [] //store clean data
         
