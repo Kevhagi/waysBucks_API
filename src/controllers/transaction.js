@@ -185,8 +185,6 @@ exports.addTransactions = async (req,res) => {
             ...data
         }
 
-        console.log("type toppingsorder : ",typeof asd.products_order[2].toppings_order);
-
         for (let i = 0; i < asd.products_order.length; i++) {
             var addProductOrder = await products_order.create({
                 transactionID : addTransaction.id,
