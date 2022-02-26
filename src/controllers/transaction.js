@@ -355,11 +355,13 @@ exports.getCart = async (req,res) => {
                         customerID : getUserDetails.id,
                         order : scarlet.products_order.map((vodka) => {
                             return {
+                                productID : vodka.id,
                                 productName : vodka.products.productName,
                                 productPrice : vodka.products.productPrice,
                                 productImage : vodka.products.productImage,
                                 topping : vodka.toppings_order.map((teio, index) => {
                                     return {
+                                        toppingID : teio.id,
                                         toppingName : teio.toppings.toppingName,
                                         toppingPrice : teio.toppings.toppingPrice
                                     }
@@ -369,6 +371,84 @@ exports.getCart = async (req,res) => {
                     }
                 })
             }
+        })
+
+        
+    } catch (error) {
+        console.log(error);
+        res.status(400).send({
+            status : 'Failed',
+            message : 'Server Error'
+        })
+    }
+}
+
+exports.getCartOther = async (req,res) => {
+    try {
+
+        //user stuffs
+        const authHeader = req.header("Authorization")
+        const token = authHeader && authHeader.split(' ')[1]
+        var decoded = jwt_decode(token)
+        const decodedID = decoded.id
+        const getUserDetails = await user.findOne({
+            where : {
+                id : decodedID
+            }
+        })
+
+        var allCart = await transactions.findAll({
+            where : {
+                customerID : getUserDetails.id,
+                statusTransaction : 'On Cart'
+            },
+            include : [
+                {
+                    model : products_order,
+                    as : 'products_order',
+                    include : [
+                        {
+                            model : products,
+                            as : 'products'
+                        },
+                        {
+                            model : toppings_order,
+                            as : 'toppings_order',
+                            include : [
+                                {
+                                   model : toppings,
+                                   as : 'toppings'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        })
+
+        var order = allCart.map((scarlet, index) => {
+            return {
+                order2 : scarlet.products_order.map((teio, index) => {
+                    return {
+                        productID : teio.id,
+                        toppings_order : teio.toppings_order.map((vodka, index) => {
+                            return vodka.toppingID
+                        })
+                    }
+                })
+            }
+        })
+
+        var c = order[0].order2[0].topping
+
+        var a = [] //store clean data
+        
+        for (let i = 0; i < order.length; i++) {
+            a.push(...order[i].order2)
+        }
+        
+        res.status(200).send({
+            products_order : a
         })
 
         
