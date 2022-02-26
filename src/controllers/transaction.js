@@ -167,28 +167,39 @@ exports.addTransactions = async (req,res) => {
             }
         })
 
-        var addTransaction = await transactions.create({
+        let addTransaction = await transactions.create({
             customerID : decodedID,
-            nameOrder : data.nameOrder,
-            emailOrder : data.emailOrder,
-            phoneOrder : data.phoneOrder,
-            postCodeOrder : data.postCodeOrder,
-            addressOrder : data.addressOrder
+            ...data,
+            transactionImage : req.file.filename
         })
 
-        for (let i = 0; i < data.products_order.length; i++) {
+        addTransaction = JSON.parse(JSON.stringify(addTransaction))
+
+        addTransaction = {
+            ...addTransaction,
+            transactionImage : process.env.FILE_PATH + addTransaction.transactionImage
+        }
+
+
+        let asd = {
+            ...data
+        }
+
+        console.log("type toppingsorder : ",typeof asd.products_order[2].toppings_order);
+
+        for (let i = 0; i < asd.products_order.length; i++) {
             var addProductOrder = await products_order.create({
                 transactionID : addTransaction.id,
-                productID : data.products_order[i].productID,
-                qty : data.products_order[i].qty
+                productID : asd.products_order[i].productID
             })
-            for (let j = 0; j < data.products_order[i].toppings_order.length; j++) {
+            for (let j = 0; j < asd.products_order[i].toppings_order.length; j++) {
                 var addToppingOrder = await toppings_order.create({
                     productOrderID : addProductOrder.id,
-                    toppingID : data.products_order[i].toppings_order[j]
+                    toppingID : asd.products_order[i].toppings_order[j]
                 })
             }
         }
+
 
         var getProductOrder = await products_order.findAll({
             where : {
@@ -234,13 +245,6 @@ exports.addTransactions = async (req,res) => {
             { where : { id : addTransaction.id }}
         )
 
-        /*
-        addTransaction.set({
-            
-        })
-
-        await addTransaction.save()
-        */
 
         res.status(200).send({
             status : 'Waiting Approve',
@@ -430,7 +434,7 @@ exports.getCartOther = async (req,res) => {
             return {
                 order2 : scarlet.products_order.map((teio, index) => {
                     return {
-                        productID : teio.id,
+                        productID : teio.productID,
                         toppings_order : teio.toppings_order.map((vodka, index) => {
                             return vodka.toppingID
                         })
