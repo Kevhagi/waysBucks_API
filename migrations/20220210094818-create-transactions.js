@@ -38,6 +38,9 @@ module.exports = {
       transactionImage : {
         type: Sequelize.STRING
       },
+      totalAmount : {
+        type: Sequelize.INTEGER
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

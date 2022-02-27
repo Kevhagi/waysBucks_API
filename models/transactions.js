@@ -32,7 +32,8 @@ module.exports = (sequelize, DataTypes) => {
     phoneOrder: DataTypes.STRING,
     postCodeOrder: DataTypes.INTEGER,
     addressOrder: DataTypes.TEXT,
-    transactionImage: DataTypes.STRING
+    transactionImage: DataTypes.STRING,
+    totalAmount : DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'transactions',

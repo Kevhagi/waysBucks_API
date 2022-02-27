@@ -41,6 +41,12 @@ exports.getTransactions = async (req,res) => {
                 transactions : allTransactions.map((scarlet, index) => {
                     return {
                         id : scarlet.id,
+                        statusTransaction : scarlet.statusTransaction,
+                        nameOrder : scarlet.nameOrder,
+                        emailOrder : scarlet.emailOrder,
+                        phoneOrder : scarlet.phoneOrder,
+                        postCodeOrder : scarlet.postCodeOrder,
+                        addressOrder : scarlet.addressOrder,
                         userOrder : {
                             id : scarlet.customer.id,
                             fullName : scarlet.customer.fullName,
@@ -633,6 +639,7 @@ exports.myTransactions = async (req,res) => {
                         id : scarlet.id,
                         status : scarlet.statusTransaction,
                         createdAt : scarlet.createdAt,
+                        totalAmount : scarlet.totalAmount,
                         order : scarlet.products_order.map((teio, index) => {
                             return {
                                 id : teio.id,
