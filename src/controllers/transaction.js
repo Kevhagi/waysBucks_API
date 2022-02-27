@@ -155,24 +155,6 @@ exports.getTransaction = async (req,res) => {
 
 exports.addTransactions = async (req,res) => {
     try {
-        const schema = Joi.object({
-            nameOrder: Joi.string().min(2).required,
-            emailOrder: Joi.string().min(3).email().required(),
-            phoneOrder: Joi.number().integer().min(5).required(),
-            postCodeOrder : Joi.number().integer().min(5).max(6).required(),
-            addressOrder : Joi.required()
-        })
-
-        const { error } = schema.validate(req.body)
-        if(error){
-            return res.status(400).send({
-                error : {
-                    message : error.details[0].message
-                }
-            })
-        }
-
-
         const data = req.body
 
         //user stuffs
@@ -207,7 +189,8 @@ exports.addTransactions = async (req,res) => {
         for (let i = 0; i < asd.products_order.length; i++) {
             var addProductOrder = await products_order.create({
                 transactionID : addTransaction.id,
-                productID : asd.products_order[i].productID
+                productID : asd.products_order[i].productID,
+                qty : 1
             })
             for (let j = 0; j < asd.products_order[i].toppings_order.length; j++) {
                 var addToppingOrder = await toppings_order.create({
@@ -649,17 +632,19 @@ exports.myTransactions = async (req,res) => {
                     return {
                         id : scarlet.id,
                         status : scarlet.statusTransaction,
+                        createdAt : scarlet.createdAt,
                         order : scarlet.products_order.map((teio, index) => {
                             return {
                                 id : teio.id,
                                 title : teio.products.productName,
                                 price : teio.products.productPrice,
-                                image : teio.products.productImage,
+                                image : process.env.FILE_PATH + teio.products.productImage,
                                 qty : teio.qty,
                                 toppings : teio.toppings_order.map((karin, index) => {
                                     return {
                                         id : karin.toppingID,
-                                        name : karin.toppings.toppingName
+                                        name : karin.toppings.toppingName,
+                                        price : karin.toppings.toppingPrice
                                     }
                                 })
                             }
