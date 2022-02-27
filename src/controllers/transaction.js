@@ -47,6 +47,7 @@ exports.getTransactions = async (req,res) => {
                         phoneOrder : scarlet.phoneOrder,
                         postCodeOrder : scarlet.postCodeOrder,
                         addressOrder : scarlet.addressOrder,
+                        totalAmount : scarlet.totalAmount,
                         userOrder : {
                             id : scarlet.customer.id,
                             fullName : scarlet.customer.fullName,
